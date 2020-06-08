@@ -43,17 +43,16 @@ public class DBConn {
      *
      * @return true, if connected, false otherwise
      */
-    private boolean connect() {
-        boolean result = false;
+    public boolean connect() {
         if (conn != null) {
             System.err.println("Connection is already set.");
-            return result;
+            return false;
         }
 
+        boolean result = true;
         try {
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName(JDBC_DRIVER);
             this.conn = DriverManager.getConnection(DB_CONN_STR, DB_USER, DB_PASS);
-            result = true;
         } catch (ClassNotFoundException cnfe) {
             System.err.println("Couldn't find MySQL JDBC driver.");
             cnfe.printStackTrace();//CLASS FOR NAME
@@ -72,11 +71,11 @@ public class DBConn {
      *
      * @return true, if disconnected, false otherwise
      */
-    private boolean disconnect() {
+    public boolean disconnect() {
         boolean result = false;
-        if (conn != null) {
+        if (this.conn != null) {
             try {
-                conn.close();
+                this.conn.close();
                 result = true;
             } catch (SQLException sqle) {
                 System.err.println("Couldn't close connection.");
@@ -91,10 +90,10 @@ public class DBConn {
      *
      * @return true, if is ON, false otherwise
      */
-    private boolean isConnected() {
-        boolean result = false;
+    public boolean isConnected() {
+        boolean result;
         try {
-            result = conn != null && !conn.isClosed();
+            result = this.conn != null && !this.conn.isClosed();
         } catch (SQLException sqle) {
             result = false;
             sqle.printStackTrace();
@@ -102,35 +101,7 @@ public class DBConn {
         return result;
     }
 
-    /**
-     * Calls an insert to DB.
-     *
-     * @param action Passed action to add to DB
-     * @return true, if added, false otherwise
-     */
-    public boolean executeInsert(Action action) {
-        // Make a DB connection
-        if (!this.isConnected()) {
-            this.connect();
-        }
-
-        String prepStmt_str = "INSERT INTO actions(user_id, game_id, action_name) VALUES (?,?,?)";
-
-        int result = -1;
-        PreparedStatement prepStmt = null;
-        try {
-            prepStmt = conn.prepareStatement(prepStmt_str);
-            prepStmt.setInt(1, action.getUserId());
-            prepStmt.setInt(2, action.getGameId());
-            prepStmt.setString(3, action.getAction());
-            result = prepStmt.executeUpdate();
-        } catch (SQLException sqle) {
-            System.err.println("Couldn't add new entry to DB.");
-            sqle.printStackTrace();
-            result = 0;
-        } finally {
-            this.disconnect();
-        }
-        return result > 0;
+    public Connection getConnection() {
+        return this.conn;
     }
 }

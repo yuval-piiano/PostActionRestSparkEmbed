@@ -25,7 +25,7 @@ public class Action {
      */
     public static Action fromJSON(String request) {
         return request != null && request.trim().length() != 0
-                ? (Action) new Gson().fromJson(request, Action.class)
+                ? new Gson().fromJson(request, Action.class)
                 : null;
     }
 

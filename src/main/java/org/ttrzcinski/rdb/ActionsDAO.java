@@ -3,6 +3,9 @@ package org.ttrzcinski.rdb;
 import org.ttrzcinski.utils.DBConn;
 import spark.Request;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 /**
  * Acts as a single point of access to Actions details.
  */
@@ -77,6 +80,39 @@ public class ActionsDAO {
      */
     private boolean insertAction(Request request) {
         Action action = parseAction(request);
-        return action != null && DBConn.getInstance().executeInsert(action);
+        return action != null && this.executeInsert(action);
+    }
+
+    /**
+     * Calls an insert to DB.
+     *
+     * @param action Passed action to add to DB
+     * @return true, if added, false otherwise
+     */
+    private boolean executeInsert(Action action) {
+        // Make a DB connection
+        DBConn dbc = DBConn.getInstance();
+        if (!dbc.isConnected()) {
+            dbc.connect();
+        }
+
+        String prepStmt_str = "INSERT INTO actions(user_id, game_id, action_name) VALUES (?,?,?)";
+
+        int result;
+        PreparedStatement prepStmt;
+        try {
+            prepStmt = dbc.getConnection().prepareStatement(prepStmt_str);
+            prepStmt.setInt(1, action.getUserId());
+            prepStmt.setInt(2, action.getGameId());
+            prepStmt.setString(3, action.getAction());
+            result = prepStmt.executeUpdate();
+        } catch (SQLException sqle) {
+            System.err.println("Couldn't add new entry to DB.");
+            sqle.printStackTrace();
+            result = 0;
+        } finally {
+            dbc.disconnect();
+        }
+        return result > 0;
     }
 }
