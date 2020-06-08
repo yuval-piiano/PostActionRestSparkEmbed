@@ -14,3 +14,16 @@ How to test it?
 
 How to stop it?
 - [CTRL]+[C] in console
+
+# Run-as-contaier in Docker
+How to build the image (in projec's directory)?
+- docker build --tag parse:0.0.1 .
+
+How to run the image?
+- docker run --publish 4567:4567 --detach --name pp parse:0.0.1
+
+How to save built image to file?
+- docker save parse > parse_0_0_1.tar
+
+How to load the image from sent archive?
+- docker load < parse_0_0_1.tar
