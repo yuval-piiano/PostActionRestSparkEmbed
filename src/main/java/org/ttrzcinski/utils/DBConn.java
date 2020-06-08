@@ -38,50 +38,78 @@ public class DBConn {
         return INSTANCE;
     }
 
+    /**
+     * Calls DB to make a connection.
+     *
+     * @return true, if connected, false otherwise
+     */
     private boolean connect() {
+        boolean result = false;
         if (conn != null) {
             System.err.println("Connection is already set.");
-            return false;
+            return result;
         }
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
             this.conn = DriverManager.getConnection(DB_CONN_STR, DB_USER, DB_PASS);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();//CLASS FOR NAME
+            result = true;
+        } catch (ClassNotFoundException cnfe) {
+            System.err.println("Couldn't find MySQL JDBC driver.");
+            cnfe.printStackTrace();//CLASS FOR NAME
+            result = false;
         } catch (SQLException sqle) {
+            System.err.println("Couldn't get the DB connection with given credentails.");
             sqle.printStackTrace();//GET CONN
+            result = false;
         }
 
-        return true;
+        return result;
     }
 
+    /**
+     * Disconnection kept connectino to DB.
+     *
+     * @return true, if disconnected, false otherwise
+     */
     private boolean disconnect() {
+        boolean result = false;
         if (conn != null) {
-            boolean result = true;
             try {
                 conn.close();
-            } catch (SQLException throwables) {
-                result = false;
-                throwables.printStackTrace();
+                result = true;
+            } catch (SQLException sqle) {
+                System.err.println("Couldn't close connection.");
+                sqle.printStackTrace();
             }
-            return result;
         }
-        return false;
+        return result;
     }
 
+    /**
+     * Checks, if DB connection is ON.
+     *
+     * @return true, if is ON, false otherwise
+     */
     private boolean isConnected() {
+        boolean result = false;
         try {
-            if (conn != null && !conn.isClosed()) {
-                return true;
-            }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+            result = conn != null && !conn.isClosed();
+        } catch (SQLException sqle) {
+            result = false;
+            sqle.printStackTrace();
         }
-        return false;
+        return result;
     }
 
+    /**
+     * Calls an insert to DB.
+     *
+     * @param action Passed action to add to DB
+     * @return true, if added, false otherwise
+     */
     public boolean executeInsert(Action action) {
+        // Make a DB connection
         if (!this.isConnected()) {
             this.connect();
         }
@@ -96,8 +124,10 @@ public class DBConn {
             prepStmt.setInt(2, action.getGameId());
             prepStmt.setString(3, action.getAction());
             result = prepStmt.executeUpdate();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException sqle) {
+            System.err.println("Couldn't add new entry to DB.");
+            sqle.printStackTrace();
+            result = 0;
         } finally {
             this.disconnect();
         }

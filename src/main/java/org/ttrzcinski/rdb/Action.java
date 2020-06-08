@@ -7,7 +7,6 @@ import com.google.gson.Gson;
  */
 public class Action {
 
-    //"{"userId": 111, "gameId": 222, "action": "joined-the-game"}"
     private Integer userId;
     private Integer gameId;
     private String action;
@@ -18,13 +17,16 @@ public class Action {
         this.action = action;
     }
 
+    /**
+     * Converts given JSON request into Action item.
+     *
+     * @param request given JSON request
+     * @return Action item, if parsed, null otherwise
+     */
     public static Action fromJSON(String request) {
-        if (request == null || request.trim().length() == 0) {
-            return null;
-        }
-
-        Action parsed = new Gson().fromJson(request, Action.class);
-        return parsed;
+        return request != null && request.trim().length() != 0
+                ? (Action) new Gson().fromJson(request, Action.class)
+                : null;
     }
 
     public int getUserId() {

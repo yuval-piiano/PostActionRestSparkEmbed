@@ -16,9 +16,7 @@ public class ActionsDAO {
     /**
      * Hidden constructor.
      */
-    private ActionsDAO() {
-        System.out.println("Connecting to DB.");
-    }
+    private ActionsDAO() {}
 
     /**
      * Returns instance of Actions Data-Access Object.
@@ -59,16 +57,24 @@ public class ActionsDAO {
 
     }
 
+    /**
+     * Converts given request to Action item.
+     *
+     * @param request given Spark's request
+     * @return action, if parsed, null otherwise
+     */
     private Action parseAction(Request request) {
-        if (!checkRequest(request)) {
-            return null;
-        }
-
-        Action action = Action.fromJSON(request.body());
-
-        return action;
+        return checkRequest(request)
+                ? Action.fromJSON(request.body())
+                : null;
     }
 
+    /**
+     * Adds action to DB.
+     *
+     * @param request given request to parse
+     * @return true means added, false otherwise
+     */
     private boolean insertAction(Request request) {
         Action action = parseAction(request);
         return action != null && DBConn.getInstance().executeInsert(action);
