@@ -1,0 +1,6 @@
+# Ignore output
+target
+target/*
+
+# File types
+.class
