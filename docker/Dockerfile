@@ -1,4 +1,4 @@
-FROM openjdk:8
+FROM openjdk:8u322-jre-slim-bullseye
 # Used to be java:8
 
 RUN apt-get update
